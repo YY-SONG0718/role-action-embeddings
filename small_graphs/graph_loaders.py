@@ -35,10 +35,10 @@ def init_weights(m):
 
 def generate_house():
     g = nx.Graph()
-    g.add_path(range(15))
+    nx.add_path(g, range(15))
     g.add_edge(0,14)
-    for x in g.node():
-        g.node[x]['label'] = 'ring'
+    for x in g.nodes():
+        g.nodes[x]['label'] = 'ring'
     start = 15
     connector = 0
     # make houses
@@ -46,29 +46,29 @@ def generate_house():
         g.add_edges_from(combinations(range(start, start + 4), 2))
         g.add_edges_from([(start + 2, start + 4),(start + 3, start + 4),(start + 3, connector)])
 
-        g.node[start]['label'] = 'base'
-        g.node[start+1]['label'] = 'base'
-        g.node[start+2]['label'] = 'window'
-        g.node[start+3]['label'] = 'door'
-        g.node[start+4]['label'] = 'roof'
-        g.node[connector]['label'] = 'connector'
+        g.nodes[start]['label'] = 'base'
+        g.nodes[start+1]['label'] = 'base'
+        g.nodes[start+2]['label'] = 'window'
+        g.nodes[start+3]['label'] = 'door'
+        g.nodes[start+4]['label'] = 'roof'
+        g.nodes[connector]['label'] = 'connector'
 
         start += 5
         connector += 3
 
     g = nx.convert_node_labels_to_integers(g)
     n_edges = len(g.edges())
-    node_list = list(g.node())
+    node_list = list(g.nodes())
     structural_features = []
     other_features = []
     feature_dim = max(dict(g.degree).values())
-    for node in g.node():
+    for node in g.nodes():
         structural_features.append(
             [g.degree(node)] + pad_features(sorted([g.degree(x) for x in g[node]], reverse=True), feature_dim)
         )
     structural_features = torch.FloatTensor(structural_features)
     other_features = torch.FloatTensor(other_features)
-    node_labels = [g.node[node]['label'] for node in g.node]
+    node_labels = [g.nodes[node]['label'] for node in g.nodes]
     return g, structural_features
 
 
@@ -87,18 +87,18 @@ def generate_barbell():
         g.add_node(idx, label=color)
     g.add_edges_from(combinations([0,1,2,3,4,5,6,7,8,9], 2))
     g.add_edges_from(combinations([10,11,12,13,14,15,16,17,18,19], 2))
-    g.add_path([9,20,21,22,23,24,25,26,27,28,29,19])
+    nx.add_path(g, [9,20,21,22,23,24,25,26,27,28,29,19])
     g = nx.convert_node_labels_to_integers(g)
     n_edges = len(g.edges())
-    node_list = list(g.node())
+    node_list = list(g.nodes())
     structural_features = []
     other_features = []
     feature_dim = max(dict(g.degree).values())
-    for node in g.node():
+    for node in g.nodes():
         structural_features.append(
             [g.degree(node)] + pad_features(sorted([g.degree(x) for x in g[node]], reverse=True), feature_dim)
         )
     structural_features = torch.FloatTensor(structural_features)
     other_features = torch.FloatTensor(other_features)
-    node_labels = [g.node[node]['label'] for node in g.node]
+    node_labels = [g.nodes[node]['label'] for node in g.nodes]
     return g, structural_features
